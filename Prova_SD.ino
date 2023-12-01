@@ -4,6 +4,7 @@
 
 void setup() 
 {
+  Serial.begin(115200);  // inicialització comunicació sèrie
   SD.begin(5);   // inicialització de la SD indicant el pin CS
   //writeFile(SD, "/hello.txt", "Hello \n");
   writeFile(SD, "/dades.csv", "Hello \n");  
