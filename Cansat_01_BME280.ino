@@ -35,26 +35,9 @@ void llegeix_sensors()
 
 void mostra_dades()
 {
-  Serial.print ("temperatura = ");
-  Serial.print (temperatura);
-  Serial.println (" °C");
-  Serial.print ("pressio = ");
-  Serial.print (pressio);
-  Serial.println (" hPa");
-  Serial.print ("altitud aprox = ");
-  Serial.print (altitud);
-  Serial.println (" m");
-  Serial.print ("humitat relativa = ");
-  Serial.print (humitat);
-  Serial.println (" %");
-  Serial.println ();
-}
-
-void mostra_dades_1()
-{
-  Serial.println ("temperatura = " + String(temperatura,2) + " oC");
-  Serial.println ("pressio = " + String(pressio,4) + " hPa");
-  Serial.println ("altitud aprox = " + String(altitud,2) + " m");
-  Serial.println ("humitat relativa = " + String(humitat,2) + " %");
+  Serial.println (temperatura);
+  Serial.println (pressio);
+  Serial.println (altitud);
+  Serial.println (humitat);
   Serial.println ();
 }
