@@ -1,6 +1,6 @@
 #include "FS.h"   // per gestionar arxius
 #include "SD.h"   // per treballar amb SD
-#include "SPI.h"  // per traballar amb SDI
+#include "SPI.h"  // per traballar amb SPI
 
 void setup() 
 {
