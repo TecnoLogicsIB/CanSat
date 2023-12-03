@@ -41,7 +41,7 @@ void deleteFile(fs::FS &fs, const char * path)  // elimina l'arxiu especificat
   fs.remove(path);
 }
 
-void readFile(fs::FS &fs, const char * path)  // mostra el contingut de l'arxiu epl monitor sèrie
+void readFile(fs::FS &fs, const char * path)  // mostra el contingut de l'arxiu pel monitor sèrie
 {
   Serial.printf("Reading file: %s\n", path);
   File file = fs.open(path);
