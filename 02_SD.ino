@@ -9,9 +9,9 @@
 Adafruit_BME280 bme; 
 float temperatura, pressio, altitud, humitat;
 unsigned long temps_referencia = 0;
-int paquet = 0;
+int comptador = 0;
 const char* arxiu = "/dades.csv";    // nom arxiu a la SD
-const char* cabecera = "paquet,temperatura (oC),pressio (hPa),altitud (m),humitat relativa (%),ID \n";  // cabecera arxiu csv
+const char* cabecera = "comptador,ID,temperatura (oC),pressio (hPa),altitud (m),humitat relativa (%),END \n";  // cabecera arxiu csv
 String missatge;  
 
 void setup() 
@@ -28,7 +28,7 @@ void loop()
 {
   if((millis()-temps_referencia)>=1000)
   {
-    paquet++;
+    comptador++;
     temps_referencia=millis();
     llegeix_sensors();
     //mostra_dades();
@@ -66,7 +66,7 @@ void mostra_dades()
 
 void crea_missatge()
 {
-  missatge = String(paquet)+ "," +String(temperatura,2)+ "," +String(pressio,2)+ "," +String(altitud,2)+ "," +String(humitat,2)+ "," + "BELL-AIR \n";    
+  missatge = String(comptador)+ "," + "BELL-AIR" + "," + String(temperatura,2)+ "," +String(pressio,2)+ "," +String(altitud,2)+ "," +String(humitat,2)+ "," + "END \n";    
 }
 
 void graba_sd()
