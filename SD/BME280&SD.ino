@@ -11,7 +11,7 @@ float temperatura, pressio, altitud, humitat;
 unsigned long temps_referencia = 0;
 int comptador = 0;
 const char* arxiu = "/dades.csv";    // nom arxiu a la SD
-const char* cabecera = "comptador,ID,temperatura (oC),pressio (hPa),altitud (m),humitat relativa (%),END \n";  // cabecera arxiu csv
+const char* cabecera = "ID, comptador,temperatura (oC),pressio (hPa),altitud (m),humitat relativa (%),END \n";  // cabecera arxiu csv
 String missatge;  
 
 void setup() 
@@ -66,7 +66,7 @@ void mostra_dades()
 
 void crea_missatge()
 {
-  missatge = String(comptador)+ "," + "BELL-AIR" + "," + String(temperatura,2)+ "," +String(pressio,2)+ "," +String(altitud,2)+ "," +String(humitat,2)+ "," + "END \n";    
+  missatge = String(paquet)+ "," + "BELL-AIR" + "," +String(temperatura,2)+ "," +String(pressio,2)+ "," +String(altitud,2)+ "," +String(humitat,2)+ "," + "END \n";    
 }
 
 void graba_sd()
