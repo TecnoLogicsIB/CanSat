@@ -11,7 +11,7 @@ float temperatura, pressio, altitud, humitat;
 unsigned long temps_referencia = 0;
 int comptador = 0;
 const char* arxiu = "/dades.csv";    // nom arxiu a la SD
-const char* cabecera = "ID, comptador,temperatura (oC),pressio (hPa),altitud (m),humitat relativa (%),END \n";  // cabecera arxiu csv
+const char* cabecera = "comptador,altitud_bme (m),temperatura (oC),pressio (hPa),humitat relativa (%), ID \n";  // cabecera arxiu csv
 String missatge;  
 
 void setup() 
@@ -20,8 +20,7 @@ void setup()
   bme.begin(0x76);
   SD.begin(5);
   deleteFile(SD, arxiu);  // esborra el fitxer si ja existeix
-  //writeFile(SD, arxiu, "DADES \n");  // crea el fitxer i escriu alguna cosa
-  writeFile(SD, arxiu, cabecera);  //capçalera, sobreescriu el text anterior
+  writeFile(SD, arxiu, cabecera);  //crea l'arxiu i escriu la capçalera en la 1a línia
 }
 
 void loop() 
@@ -66,16 +65,17 @@ void mostra_dades()
 
 void crea_missatge()
 {
-  missatge = String(paquet)+ "," + "BELL-AIR" + "," +String(temperatura,2)+ "," +String(pressio,2)+ "," +String(altitud,2)+ "," +String(humitat,2)+ "," + "END \n";    
+  // cabecera = "comptador,altitud_bme (m),temperatura (oC),pressio (hPa),humitat relativa (%), ID \n";
+  missatge = String(comptador)+ "," + String(altitud,2)+ "," + String(temperatura,2)+ "," + String(pressio,2)+ "," + String(humitat,2)+ "," + "BELL-AIR \n";    
 }
 
 void graba_sd()
-{
-  //missatge = String(paquet)+ "," +String(temperatura,2)+ "," +String(pressio,2)+ "," +String(altitud,2)+ "," +String(humitat,2)+ "," +String("BELL-AIR") + "\r\n";
-  //missatge = String(paquet)+ "," +String(temperatura,2)+ "," +String(pressio,2)+ "," +String(altitud,2)+ "," +String(humitat,2)+ "," + "BELL-AIR \n";    
+{  
   appendFile(SD, arxiu, missatge.c_str());
   readFile(SD, arxiu);
 }
+
+// -----------------------------------------------------------------------------
 
 void writeFile(fs::FS &fs, const char * path, const char * message)
 {
