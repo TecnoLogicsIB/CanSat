@@ -35,7 +35,6 @@ void loop()
     comptador++;
     temps_referencia=millis();
     llegeix_sensors();
-    //mostra_dades();
     crea_missatge();
     graba_sd();
     envia_RF();
@@ -50,23 +49,6 @@ void llegeix_sensors()
   pressio=bme.readPressure()/100;
   altitud=bme.readAltitude(1013.25);
   humitat=bme.readHumidity();
-}
-
-void mostra_dades()
-{
-  Serial.print ("temperatura = ");
-  Serial.print (temperatura);
-  Serial.println (" °C");
-  Serial.print ("pressio = ");
-  Serial.print (pressio);
-  Serial.println (" hPa");
-  Serial.print ("altitud aprox = ");
-  Serial.print (altitud);
-  Serial.println (" m");
-  Serial.print ("humitat relativa = ");
-  Serial.print (humitat);
-  Serial.println (" %");
-  Serial.println ();
 }
 
 void crea_missatge()
