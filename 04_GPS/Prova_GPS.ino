@@ -1,10 +1,10 @@
-#include <TinyGPSPlus.h>
+#include <TinyGPSPlus.h>     // per treballar amb NEO-6M
 #include <HardwareSerial.h>  // per definir el port sèrie
 
-TinyGPSPlus gps;  // anomenem gps a l'objecte TinyGPSPlus
-HardwareSerial gps_serial(1); // utilitzo UART1 i l'anomeno gps_serial
+TinyGPSPlus gps;               // anomenem gps a l'objecte TinyGPSPlus
+HardwareSerial gps_serial(1);  // utilitzo UART1 de l'ESP32 i l'anomeno gps_serial
 
-int comptador=0;
+int comptador=0;              // per definir núm de lectures
 
 // variables pèr desar les lectures del gps (format text)
 String latitud;
@@ -38,22 +38,21 @@ void loop()
 
 void llegir_gps() 
 {
-	latitud = String(gps.location.lat(), 6);
-	longitud = String(gps.location.lng(), 6);
-	altitud = String(gps.altitude.meters(),2);
-  sats = String(gps.satellites.value());  // nombre de satèlits detectat (+ sats -> + precissió)
+  latitud = String(gps.location.lat(), 6);
+  longitud = String(gps.location.lng(), 6);
+  altitud = String(gps.altitude.meters(),2);
+  sats = String(gps.satellites.value());  	// nombre de satèlits detectat (+ sats -> + precissió)
 }
 
 void enviar_serie() 
 {
   Serial.print(comptador);
   Serial.print(",");
-	Serial.print(latitud);
-	Serial.print(",");
-	Serial.print(longitud);
-	Serial.print(",");
-	Serial.print(altitud);
+  Serial.print(latitud);
   Serial.print(",");
-	Serial.println(sats);
+  Serial.print(longitud);
+  Serial.print(",");
+  Serial.print(altitud);
+  Serial.print(",");
+  Serial.println(sats);
 }
-
