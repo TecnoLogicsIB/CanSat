@@ -20,8 +20,12 @@ String temperatura, pressio, altitud, humitat;     // variables per desar les le
 String latitud; String longitud; String altitud_gps; String sats; // variables pèr desar les lectures del gps (en format text)
 float ax, ay, az;  // valors d'acceleració
 String accel;
+// balisa:
+int PinsLeds[] = {12, 14, 26, 27}; // definició dels pins en un array (llista)
+int llum = 0;     // 0: apagats – 1: encesos 
 
 unsigned long temps_referencia = 0;
+unsigned long temps_leds = 0;        // per la definició dels temps d'encesa de la balisa
 int comptador = 0;                   // comptador de paquets
 const char* arxiu = "/dades.csv";    // nom arxiu a la SD
 const char* cabecera = "comptador,latitud,longitud,altitud GPS (m),altitud BME280 (m),temperatura (oC),pressio (hPa),humitat relativa (%),satelits,acceleració (m/s2),ID \n";  // cabecera arxiu csv
@@ -38,13 +42,25 @@ void setup()
   SD.begin(5);
   deleteFile(SD, arxiu);           // esborra el fitxer si ja existeix
   writeFile(SD, arxiu, cabecera);  //capçalera, sobreescriu el text anterior
+  for (int i=0; i<4; i++) {pinMode(PinsLeds[i],OUTPUT);}  // inicialitza els 4 pins dels leds de la balisa com a sortides
 }
 
 void loop() 
 {
+  // GPS (continu):
   while (gps_serial.available() > 0)
   { if (gps.encode(gps_serial.read())) { llegeix_gps(); } }
 
+  // balisa (cada 100 ms):
+  if ((millis()-temps_leds)>=100)  //balisa. temps d’encesa (el més curt)
+  {
+    temps_leds=millis();
+    llum++;
+    if (llum ==9) {llum=0;}  // apaguem els leds durant temps 9 vegades l'encesa (60 flaixos/min)
+    blink();
+  }
+
+  // funcionament general (cada segon):
   if((millis()-temps_referencia)>=1000)
   {
     temps_referencia=millis();
@@ -93,6 +109,12 @@ void envia_RF()
 {
   SerialRF.println(missatge.c_str());  // missatge a enviar per RF
   //Serial.println (missatge);  // per comprovació
+}
+
+void blink()
+{
+  if (llum==1) { for (int i=0; i<4; i++) {digitalWrite(PinsLeds[i],HIGH);} }  // encen leds
+  else { for (int i=0; i<4; i++) {digitalWrite(PinsLeds[i],LOW);} }   // apaga leds
 }
 
 // ----------------------- FUNCIONS SD ----------------------
