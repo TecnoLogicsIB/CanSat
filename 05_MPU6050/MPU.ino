@@ -1,25 +1,30 @@
 // inserció de llibreries
-#include <Wire.h>             // per trebalar amb I2C
-#include <Adafruit_BME280.h>  // pel sensor BME280
-#include "FS.h"               // per gestionar arxius
-#include "SD.h"               // per treballar amb targeta SD
-#include "SPI.h"              // per treballar amb SPI
-#include <HardwareSerial.h>   // definició pins Serie
-#include <TinyGPSPlus.h>      // pel GPS
+#include <Wire.h>              // per trebalar amb I2C
+#include <Adafruit_BME280.h>   // pel sensor BME280
+#include "FS.h"                // per gestionar arxius
+#include "SD.h"                // per treballar amb targeta SD
+#include "SPI.h"               // per treballar amb SPI
+#include <HardwareSerial.h>    // definició pins Serie
+#include <TinyGPSPlus.h>       // pel GPS
+#include <Adafruit_MPU6050.h>  // pel MPU6050
+#include <Adafruit_Sensor.h>   // pel MPU6050
 
 // creació d'objectes i variables:
 Adafruit_BME280 bme; 
-TinyGPSPlus gps;  // anomenem gp a l'objecte TinyGPSPlus
-HardwareSerial SerialRF(2);   // nou port sèrie (UART2)
+TinyGPSPlus gps;              // anomenem gps a l'objecte TinyGPSPlus
+Adafruit_MPU6050 mpu;         // objecte MPU6050
 HardwareSerial gps_serial(1); // utilitzo UART1 i l'anomeno gps_serial
+HardwareSerial SerialRF(2);   // nou port sèrie (UART2)
 
 String temperatura, pressio, altitud, humitat;     // variables per desar les lectures del BME280 (en format text)
 String latitud; String longitud; String altitud_gps; String sats; // variables pèr desar les lectures del gps (en format text)
+float ax, ay, az;  // valors d'acceleració
+String accel;
 
 unsigned long temps_referencia = 0;
 int comptador = 0;                   // comptador de paquets
 const char* arxiu = "/dades.csv";    // nom arxiu a la SD
-const char* cabecera = "comptador,latitud,longitud,altitud GPS (m),altitud BME280 (m),temperatura (oC),pressio (hPa),humitat relativa (%),satelits,ID \n";  // cabecera arxiu csv
+const char* cabecera = "comptador,latitud,longitud,altitud GPS (m),altitud BME280 (m),temperatura (oC),pressio (hPa),humitat relativa (%),satelits,acceleració (m/s2),ID \n";  // cabecera arxiu csv
 String missatge;  
 
 void setup() 
@@ -28,18 +33,17 @@ void setup()
   SerialRF.begin(9600, SERIAL_8N1, 16, 17);   // velocitat del mòdul RF, mode de funcionament, pin RX, pin TX
   gps_serial.begin(9600, SERIAL_8N1, 2, 15);  // velocitat del mòdul gps, mode de funcionament, pin RX, pin TX
   bme.begin(0x76);
+  mpu.begin(0x68);                                 // inicialització mpu
+  mpu.setAccelerometerRange(MPU6050_RANGE_16_G);   // estableix el rang de mesura de l'acceleròmetre
   SD.begin(5);
-  deleteFile(SD, arxiu);  // esborra el fitxer si ja existeix
+  deleteFile(SD, arxiu);           // esborra el fitxer si ja existeix
   writeFile(SD, arxiu, cabecera);  //capçalera, sobreescriu el text anterior
 }
 
 void loop() 
 {
   while (gps_serial.available() > 0)
-  {
-    if (gps.encode(gps_serial.read()))
-    { llegeix_gps(); }
-  }
+  { if (gps.encode(gps_serial.read())) { llegeix_gps(); } }
 
   if((millis()-temps_referencia)>=1000)
   {
@@ -60,6 +64,10 @@ void llegeix_sensors()
   pressio = String(bme.readPressure()/100,2);
   altitud = String(bme.readAltitude(1013.25),2);
   humitat = String(bme.readHumidity(),2);
+  sensors_event_t a, g, temp;  // per la lectura del MPU
+  mpu.getEvent(&a, &g, &temp);
+  ax= a.acceleration.x; ay= a.acceleration.y; az= a.acceleration.z;
+  accel = String(sqrt(pow(ax,2) + pow(ay,2) + pow(az,2)),2);  // vector aceleración: la raiz cuadrada (sqrt) de la suma de los componentes al cuadrado (pow,2)
 }
 
 void llegeix_gps() 
@@ -71,9 +79,8 @@ void llegeix_gps()
 }
 
 void crea_missatge()
-{
-  // per comprovar: cabecera = "comptador,latitud,longitud,altitud GPS (m),altitud BME280 (m),temperatura (oC),pressio (hPa),humitat relativa (%),satelits,ID \n" 
-  missatge = String(comptador)+","+latitud+","+longitud+","+altitud_gps+","+altitud+","+temperatura+","+pressio+","+humitat+","+sats+",BELL-AIR \n";  
+{ 
+  missatge = String(comptador)+","+latitud+","+longitud+","+altitud_gps+","+altitud+","+temperatura+","+pressio+","+humitat+","+sats+","+accel+",BELL-AIR \n";  
 }
 
 void graba_sd()
@@ -85,7 +92,7 @@ void graba_sd()
 void envia_RF()
 {
   SerialRF.println(missatge.c_str());  // missatge a enviar per RF
-  Serial.println (missatge);  // per comprovació
+  //Serial.println (missatge);  // per comprovació
 }
 
 // ----------------------- FUNCIONS SD ----------------------
