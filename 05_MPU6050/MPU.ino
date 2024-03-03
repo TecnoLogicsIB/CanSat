@@ -56,7 +56,6 @@ void loop()
     crea_missatge();
     graba_sd();
     envia_RF();
-    
   }
 }
 
