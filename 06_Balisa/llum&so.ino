@@ -23,9 +23,8 @@ String accel;
 // balisa:
 int PinsLeds[] = {12, 14, 26, 27}; // definició dels pins en un array (llista)
 int llum = 0;     // 0: apagats – 1: encesos 
-int PinSo = 25; // pin altaveu
+int PinSo = 25;   // pin brunzidor (actiu)
 bool estat_so = 0;
-int freq = 2000; int canal = 0; int resolucio = 8;  // pels senyals PWM del so
 
 unsigned long temps_referencia = 0;  // per la definició dels temps de funcionament general
 unsigned long temps_leds = 0;        // per la definició dels temps d'encesa de la balisa
@@ -45,9 +44,9 @@ void setup()
   mpu.setAccelerometerRange(MPU6050_RANGE_16_G);   // estableix el rang de mesura de l'acceleròmetre
   SD.begin(5);
   deleteFile(SD, arxiu);           // esborra el fitxer si ja existeix
-  writeFile(SD, arxiu, cabecera);  //capçalera, sobreescriu el text anterior
+  writeFile(SD, arxiu, cabecera);  // capçalera, sobreescriu el text anterior
   for (int i=0; i<4; i++) {pinMode(PinsLeds[i],OUTPUT);}  // inicialitza els 4 pins dels leds de la balisa com a sortides
-  ledcSetup (canal, freq, resolucio); ledcAttachPin (PinSo, canal);  // inicialització PWM so
+  pinMode (PinSo,OUTPUT);          // configuració pin brunzidor
 }
 
 void loop() 
@@ -65,12 +64,8 @@ void loop()
     blink();
   }
 
-  // altaveu (cada 500 ms):
-  if ((millis()-temps_so)>=500)
-  {
-    temps_so = millis();
-    if (comptador > 10) {so();}  // condició perquè comenci a sonar l'altaveu (potser en funció de gran acceleració en caure ...)
-  }
+  // brunzidor (cada 500 ms):
+  if ((millis()-temps_so)>=500) { so(); }
 
   // funcionament general (cada segon):
   if((millis()-temps_referencia)>=1000)
@@ -131,10 +126,8 @@ void blink()
 
 void so()
 {
-  estat_so =! estat_so;
-  if (estat_so == 0) {freq = 500;}
-  else {freq = 0;}
-  ledcWriteTone (canal, freq);
+  estat_so = !estat_so;
+  digitalWrite(PinSo, estat_so);
 }
 
 // ----------------------- FUNCIONS SD ----------------------
